@@ -41,7 +41,7 @@ while :; do echo
   read -p "Please input a number:(Default 1 press Enter) " DESC_BK
   [ -z "$DESC_BK" ] && DESC_BK=1
   if [[ ! $DESC_BK =~ ^[1-6]$ ]]; then
-    echo "${CWARNING}input error! Please only input number 1,2,3,4,5,6${CEND}"
+    echo "${CWARNING}input error! Please only input number 1~6${CEND}"
   else
     break
   fi
@@ -62,7 +62,7 @@ while :; do echo
   read -p "Please input a number:(Default 1 press Enter) " CONTENT_BK
   [ -z "$CONTENT_BK" ] && CONTENT_BK=1
   if [[ ! $CONTENT_BK =~ ^[1-3]$ ]]; then
-    echo "${CWARNING}input error! Please only input number 1,2,3${CEND}"
+    echo "${CWARNING}input error! Please only input number 1~3${CEND}"
   else
     break
   fi
@@ -168,48 +168,52 @@ fi
 
 if [[ "$DESC_BK" =~ ^[3,5,6]$ ]]; then
   [ ! -e "${python_install_dir}/bin/python" ] && Install_Python
-  [ ! -e "${python_install_dir}/lib/coscmd" ] && ${python_install_dir}/bin/pip install coscmd==1.7.4 >/dev/null 2>&1 
-  sed -i "/if query_yes_no/{ n; s/^.*/#&/; }" ${python_install_dir}/lib/python2.7/site-packages/coscmd/cos_client.py
-  sed -i "s/if query_yes_no/#if query_yes_no/" ${python_install_dir}/lib/python2.7/site-packages/coscmd/cos_client.py
+  [ ! -e "${python_install_dir}/lib/coscmd" ] && ${python_install_dir}/bin/pip install coscmd >/dev/null 2>&1 
   while :; do echo
     echo 'Please select your backup datacenter:'
-    echo -e "\t ${CMSG}1${CEND}. 华南(广州)  ${CMSG}2${CEND}. 华北(天津)"
-    echo -e "\t ${CMSG}3${CEND}. 华东(上海)  ${CMSG}4${CEND}. 西南(成都)"
-    echo -e "\t ${CMSG}5${CEND}. 新加坡"
+    echo -e "\t ${CMSG}1${CEND}. 北京一区(华北)  ${CMSG}2${CEND}. 北京"
+    echo -e "\t ${CMSG}3${CEND}. 上海(华东)      ${CMSG}4${CEND}. 广州(华南)"
+    echo -e "\t ${CMSG}5${CEND}. 成都(西南)      ${CMSG}6${CEND}. 新加坡"
+    echo -e "\t ${CMSG}7${CEND}. 香港            ${CMSG}8${CEND}. 多伦多"
+    echo -e "\t ${CMSG}9${CEND}. 法兰克福"
     read -p "Please input a number:(Default 1 press Enter) " Location
     [ -z "$Location" ] && Location=1
-    if [ ${Location} -ge 1 >/dev/null 2>&1 -a ${Location} -le 5 >/dev/null 2>&1 ]; then
+    if [ ${Location} -ge 1 >/dev/null 2>&1 -a ${Location} -le 9 >/dev/null 2>&1 ]; then
       break
     else
-      echo "${CWARNING}input error! Please only input number 1~5${CEND}"
+      echo "${CWARNING}input error! Please only input number 1~9${CEND}"
     fi
   done
-  [ "$Location" == '1' ] && region='cn-south'
-  [ "$Location" == '2' ] && region='cn-north'
-  [ "$Location" == '3' ] && region='cn-east'
-  [ "$Location" == '4' ] && region='cn-southwest'
-  [ "$Location" == '5' ] && region='sg'
+  [ "$Location" == '1' ] && region='ap-beijing-1'
+  [ "$Location" == '2' ] && region='ap-beijing'
+  [ "$Location" == '3' ] && region='ap-shanghai'
+  [ "$Location" == '4' ] && region='ap-guangzhou'
+  [ "$Location" == '5' ] && region='ap-chengdu'
+  [ "$Location" == '6' ] && region='ap-singapore'
+  [ "$Location" == '7' ] && region='ap-hongkong'
+  [ "$Location" == '8' ] && region='na-toronto'
+  [ "$Location" == '9' ] && region='eu-frankfurt'
   while :; do echo
-    read -p "Please enter the Qcloud COS appid: " appid 
+    read -p "Please enter the Qcloud COS APPID: " appid 
     [ -z "$appid" ] && continue
     echo
-    read -p "Please enter the Qcloud COS secret id: " secret_id
-    [ -z "$secret_id" ] && continue
+    read -p "Please enter the Qcloud COS SecretId: " SecretId
+    [ -z "$SecretId" ] && continue
     echo
-    read -p "Please enter the Qcloud COS secret key: " secret_key
-    [ -z "$secret_key" ] && continue
+    read -p "Please enter the Qcloud COS SecretKey: " SecretKey
+    [ -z "$SecretKey" ] && continue
     echo
     read -p "Please enter the Qcloud COS bucket: " bucket 
     [ -z "$bucket" ] && continue
     echo
-    $python_install_dir/bin/coscmd config -u $appid -a $secret_id -s $secret_key -r $region -b $bucket >/dev/null 2>&1
-    $python_install_dir/bin/coscmd delete oneinstack.test >/dev/null 2>&1
+    $python_install_dir/bin/coscmd config -u $appid -a $SecretId -s $SecretKey -r $region -b $bucket >/dev/null 2>&1
+    $python_install_dir/bin/coscmd list >/dev/null 2>&1
     if [ $? = 0 ];then
-      echo "${CMSG}appid/secret_id/secret_key/region/bucket OK${CEND}"
+      echo "${CMSG}appid/SecretId/SecretKey/region/bucket OK${CEND}"
       echo
       break
     else
-      echo "${CWARNING}input error! appid/secret_id/secret_key/region/bucket invalid${CEND}"
+      echo "${CWARNING}input error! appid/SecretId/SecretKey/region/bucket invalid${CEND}"
     fi
   done
 fi
